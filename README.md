@@ -16,7 +16,7 @@ informations, if there is any.
 
 ###To create a new quadrilateral
 - press 'n'
-- left click on the four vertex that define your quadrilateral
+- left click on the four vertices that define your quadrilateral
 - the defined quadrilateral should be displayed
 - type the license-plate string and press 'Enter'
 

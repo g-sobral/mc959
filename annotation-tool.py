@@ -19,7 +19,7 @@ Usage:
 
     To create a new quadrilateral:
         - press 'n'
-        - left click on the four vertex that define your quadrilateral
+        - left click on the four vertices that define your quadrilateral
         - the defined quadrilateral should be displayed
         - type the license-plate string and press 'Enter'
 
@@ -162,15 +162,8 @@ class Quadrilateral:
             self.y.append(int(args.pop(0)))
         self.plate = args.pop(0)
 
-    def print_points(self):
-        print 'x:', self.x
-        print 'y:', self.y
-
     def set_plate(self, plate):
         self.plate = plate
-
-    def print_plate(self):
-        print self.plate
 
 
 def on_mouse_event(event, x, y, flags, param):
@@ -230,7 +223,7 @@ def new_quadrilateral(x, y):
     q = Quadrilateral(x, y, plate_str)
     quadrilaterals.append(q)
 
-    help_str = 'type the license plate string and press \'Enter\''
+    help_str = 'type license plate and press \'Enter\''
     while True:
         key = cv2.waitKey(10)
         if key >= 0:
@@ -286,7 +279,7 @@ def read_file():
         print 'annotation file not found'
 
 #
-# main
+# main program
 #
 
 try:
@@ -316,7 +309,7 @@ while True:
         key = key % 256
         if key == ord('n'):
             print 'pressed \'n\': create new quadrilateral'
-            help_str = 'mark the four vertex to define a new quadrilateral'
+            help_str = 'click the four vertices'
             registering_quad = 4
         elif key == ord('s'):
             print 'pressed \'s\': saving data to file'
