@@ -1,32 +1,64 @@
 #!/usr/bin/python2.7
 # -*- coding: utf-8 -*-
 
-"""License Plate Challenge Annotation Tool.
+"""The License-Plate Challenge Annotation Tool.
 
-This module demonstrates documentation as specified by the `Google Python
-Style Guide`_. Docstrings may extend over multiple lines. Sections are created
-with a section header and a colon followed by a block of indented text.
+This program is an annotation tool to help on data collection tasks for The
+License-Plate Challenge on "MC959 - Introduction to Computer Vision" course. It
+allows defining, moving, editing, and deleting quadrilateral objects on a
+selected image. The program also allows the assignment of a license plate string
+to each quadrilateral.
+
+Usage:
+    The program expects an image path as argument:
+
+        $ ./annotation-tool.py IMAGE_PATH
+
+    It will load the indicated image and associated annotation file
+    informations, if there is any.
+
+    To create a new quadrilateral:
+        - press 'n'
+        - left click on the four vertex that define your quadrilateral
+        - the defined quadrilateral should be displayed
+        - type the license-plate string and press 'Enter'
+
+    To move a quadrilateral:
+        - just click inside the quadrilateral and move it, 'drag and drop'
+
+    To move a vextex:
+        - just click on the vertex and move it, 'drag and drop'
+
+    To delete a quadrilateral:
+        - double click inside the quadrilateral
+        - if correctly selected it should be displayed in red
+        - press 'd'
+
+    To save the annotation file:
+        - press 's'
+        It will save a file at the same path and same name of the image file,
+        with extension '.txt'.
+
+    To exit:
+        - press 'Esc'
+
+Annotation file format:
+    This is a file with same name of image file but extension txt, it contains
+    one string per line in the format "x1,y1,x2,y2,x3,y3,x4,y4,ABC1234", where
+    ABC1234 is the license plate, and x,y are the coordinates of each vertex
+    in clockwise orientation starting on the top left coordinate (the user
+    is suposed to create the quadrilateral in that order). Assuming that the
+    coordinates of the image are on the superior left corner, and that grow to
+    the right and bottow respectively. Images without license plate will
+    contain a string "None".
+
+NOTE:
+    The size of displayed objects (lines, vextex, and text) is optimized to
+    work with image sizes around 1600 x 1200 pixels. If your image size is far
+    different from that you may want to edit the variables VERTEX_SIZE,
+    LINE_THICKNESS and TEXT_SIZE.
 
 Author: Gabriel Sobral <gasan.sobral@gmail.com>
-
-Example:
-  Examples can be given using either the ``Example`` or ``Examples``
-  sections. Sections support any reStructuredText formatting, including
-  literal blocks::
-
-      $ python example_google.py
-
-Section breaks are created by simply resuming unindented text. Section breaks
-are also implicitly created anytime a new section starts.
-
-Attributes:
-  module_level_variable (int): Module level variables may be documented in
-    either the ``Attributes`` section of the module docstring, or in an
-    inline docstring immediately following the variable.
-
-    Either form is acceptable, but the two should not be mixed. Choose
-    one convention to document module level variables and be consistent
-    with it.
 
 """
 
@@ -34,6 +66,9 @@ import numpy as np
 import cv2
 import sys
 
+VERTEX_SIZE = 20
+LINE_THICKNESS = 2
+TEXT_SIZE = 2
 
 window = 'MC959 Annotation Tool'
 quadrilaterals = []
@@ -265,11 +300,6 @@ except:
     print 'image path isn\'t valid:', image_path
     exit()
 
-VERTEX_SIZE = 20
-LINE_THICKNESS = 2
-TEXT_SIZE = 2
-
-
 cv2.namedWindow(window, cv2.WINDOW_NORMAL)
 cv2.setMouseCallback(window, on_mouse_event)
 
@@ -294,24 +324,6 @@ while True:
                 selected_quad.get_string()
                 quadrilaterals.remove(selected_quad)
                 selected_quad = None
-        elif key == ord('u'):
-            print 'pressed \'u\': increasing vertex size'
-            VERTEX_SIZE += 2
-        elif key == ord('j'):
-            print 'pressed \'j\': decreasing vertex size',
-            VERTEX_SIZE = VERTEX_SIZE - 2 if VERTEX_SIZE > 2 else VERTEX_SIZE
-        elif key == ord('i'):
-            print 'pressed \'i\': increasing line thickness'
-            LINE_THICKNESS += 1
-        elif key == ord('k'):
-            print 'pressed \'k\': decreasing vertex size'
-            LINE_THICKNESS = LINE_THICKNESS - 1 if LINE_THICKNESS > 1 else LINE_THICKNESS
-        elif key == ord('o'):
-            print 'pressed \'o\': increasing vertex size'
-            TEXT_SIZE += 1
-        elif key == ord('l'):
-            print 'pressed \'l\': decreasing text size'
-            TEXT_SIZE = TEXT_SIZE - 1 if TEXT_SIZE > 1 else TEXT_SIZE
         # Esc key: exit
         elif key == 27:
             print 'pressed \'Esc\': exiting'
