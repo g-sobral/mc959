@@ -52,11 +52,14 @@ Annotation file format:
     the right and bottow respectively. Images without license plate will
     contain a string "None".
 
-NOTE:
+NOTES:
     The size of displayed objects (lines, vextex, and text) is optimized to
     work with image sizes around 1600 x 1200 pixels. If your image size is far
     different from that you may want to edit the variables VERTEX_SIZE,
     LINE_THICKNESS and TEXT_SIZE.
+
+    This program was developed for python 2.7 and openvc 2.4.1
+
 
 Author: Gabriel Sobral <gasan.sobral@gmail.com>
 
