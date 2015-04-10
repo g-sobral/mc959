@@ -14,6 +14,7 @@ registering_quad = 0
 new_quad = {'x': [], 'y': []}
 help_str = ''
 
+
 class Quadrilateral:
     def __init__(self, x, y, plate):
         self.x = x
@@ -22,14 +23,16 @@ class Quadrilateral:
 
     def contains(self, x, y):
         if x > min(self.x) and x < max(self.x) and \
-        y > min(self.y) and y < max(self.y):
+           y > min(self.y) and y < max(self.y):
             return True
         return False
 
     def has_vertex(self, x, y):
         for i in range(0, 4):
-            if x >= (self.x[i] - 10) and x <= (self.x[i] + 10) and \
-            y >= (self.y[i] - 10) and y <= (self.y[i] + 10):
+            if x >= (self.x[i] - VERTEX_SIZE/2) and \
+               x <= (self.x[i] + VERTEX_SIZE/2) and \
+               y >= (self.y[i] - VERTEX_SIZE/2) and \
+               y <= (self.y[i] + VERTEX_SIZE/2):
                 return i
         return -1
 
@@ -57,21 +60,19 @@ class Quadrilateral:
 
         # draw lines
         for i in range(-1, 3):
-            cv2.line(img,
-                     (self.x[i], self.y[i]),
+            cv2.line(img, (self.x[i], self.y[i]),
                      (self.x[i + 1], self.y[i + 1]),
-                     line_color,
-                     3)
+                     line_color, LINE_THICKNESS)
         # draw vertex
         for i in range(0, 4):
             cv2.rectangle(img,
-                          (self.x[i] - 10, self.y[i] - 10),
-                          (self.x[i] + 10, self.y[i] + 10),
+                          (self.x[i] - VERTEX_SIZE/2, self.y[i] - VERTEX_SIZE/2),
+                          (self.x[i] + VERTEX_SIZE/2, self.y[i] + VERTEX_SIZE/2),
                           vertex_color,
                           -1)
         # draw license plate string
-        cv2.putText(img, self.plate, (self.x[0], self.y[0] - 20), cv2.FONT_HERSHEY_SIMPLEX, 2,
-        plate_color, 5)
+        cv2.putText(img, self.plate, (self.x[0], self.y[0] - 20),
+                    cv2.FONT_HERSHEY_SIMPLEX, TEXT_SIZE, plate_color, 2*TEXT_SIZE)
 
     def get_string(self):
         quad_str = ''
@@ -113,6 +114,7 @@ def on_mouse_event(event, x, y, flags, param):
 
     if event == cv2.EVENT_LBUTTONDBLCLK:
         # print 'event: double click:', x, y
+        selected_quad = None
         for quad in quadrilaterals:
             if quad.contains(x, y):
                 selected_quad = quad
@@ -151,6 +153,7 @@ def on_mouse_event(event, x, y, flags, param):
         moving_quad = None
         update_image()
 
+
 def new_quadrilateral(x, y):
     global quadrilaterals
     global help_str
@@ -162,8 +165,9 @@ def new_quadrilateral(x, y):
     help_str = 'type the license plate string and press \'Enter\''
     while True:
         key = cv2.waitKey(10)
-        if key != -1:
-            if key != 10: # Enter key
+        if key >= 0:
+            key = key % 256
+            if key != 10:  # Enter key
                 plate_str += chr(key)
             else:
                 break
@@ -172,6 +176,7 @@ def new_quadrilateral(x, y):
     help_str = ''
     update_image()
 
+
 def update_image():
     img = original_img.copy()
     for quad in quadrilaterals:
@@ -179,9 +184,10 @@ def update_image():
             quad.draw(img, True)
         else:
             quad.draw(img, False)
-    cv2.putText(img, help_str, (10, height-10), cv2.FONT_HERSHEY_SIMPLEX, 2,
-    (255,0,255), 5)
+    cv2.putText(img, help_str, (10, height-10), cv2.FONT_HERSHEY_SIMPLEX,
+                TEXT_SIZE, (255, 0, 255), 2*TEXT_SIZE)
     cv2.imshow(window, img)
+
 
 def white_file():
     f = open(txt_path, 'w')
@@ -194,6 +200,7 @@ def white_file():
         f.write('None\n')
     f.close()
 
+
 def read_file():
     global quadrilaterals
     try:
@@ -201,6 +208,7 @@ def read_file():
         print 'reading annotation file:', txt_path
         for line in f:
             line = line.rstrip('\n')
+            print '>', line
             if line != 'None':
                 q = Quadrilateral([], [], '')
                 q.set_from_string(line)
@@ -227,33 +235,53 @@ except:
     print 'image path isn\'t valid:', image_path
     exit()
 
+VERTEX_SIZE = 20
+LINE_THICKNESS = 2
+TEXT_SIZE = 2
+
+
 cv2.namedWindow(window, cv2.WINDOW_NORMAL)
 cv2.setMouseCallback(window, on_mouse_event)
 
-txt_path = image_path.rsplit('.',1)[0] + '.txt'
+txt_path = image_path.rsplit('.', 1)[0] + '.txt'
 read_file()
-update_image()
 
 while True:
+    update_image()
     key = cv2.waitKey(10)
     if key >= 0:
-        # 'n' key: create new quadrilateral
+        key = key % 256
         if key == ord('n'):
             print 'pressed \'n\': create new quadrilateral'
             help_str = 'mark the four vertex to define a new quadrilateral'
-            update_image()
             registering_quad = 4
-        # 's' key: save data file
         elif key == ord('s'):
             print 'pressed \'s\': saving data to file'
             white_file()
-        # Delete key: delete quadrilateral
-        elif key == 65535:
+        elif key == ord('d'):
             if selected_quad:
-                print 'pressed \'Delete\': delete quadrilateral', selected_quad.get_string()
+                print 'pressed \'d\': delete quadrilateral',
+                selected_quad.get_string()
                 quadrilaterals.remove(selected_quad)
                 selected_quad = None
-                update_image()
+        elif key == ord('u'):
+            print 'pressed \'u\': increasing vertex size'
+            VERTEX_SIZE += 2
+        elif key == ord('j'):
+            print 'pressed \'j\': decreasing vertex size',
+            VERTEX_SIZE = VERTEX_SIZE - 2 if VERTEX_SIZE > 2 else VERTEX_SIZE
+        elif key == ord('i'):
+            print 'pressed \'i\': increasing line thickness'
+            LINE_THICKNESS += 1
+        elif key == ord('k'):
+            print 'pressed \'k\': decreasing vertex size'
+            LINE_THICKNESS = LINE_THICKNESS - 1 if LINE_THICKNESS > 1 else LINE_THICKNESS
+        elif key == ord('o'):
+            print 'pressed \'o\': increasing vertex size'
+            TEXT_SIZE += 1
+        elif key == ord('l'):
+            print 'pressed \'l\': decreasing text size'
+            TEXT_SIZE = TEXT_SIZE - 1 if TEXT_SIZE > 1 else TEXT_SIZE
         # Esc key: exit
         elif key == 27:
             print 'pressed \'Esc\': exiting'
