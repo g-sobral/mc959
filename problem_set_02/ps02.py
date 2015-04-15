@@ -46,10 +46,25 @@ try:
         digits.append(line)
     f.close()
 except IOError:
-    print 'annotation file not found'
+    print 'file not found'
     exit()
 
 print 'number of digits:', len(digits)
 print 'elements per digit:', len(digits[0])
 
-draw_digit(digits[0], 344, True)
+# draw_digit(digits[0], 344, True)
+
+print len(digits)
+data = np.array(digits)
+print data.shape
+print data
+data = np.float32(data)
+
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+flags = cv2.KMEANS_RANDOM_CENTERS
+
+retval, bestLabels, centers = cv2.kmeans(data, 10, criteria, 10, flags)
+
+print 'retval:', retval
+print 'bestLabels:', bestLabels
+print 'centers:', centers
