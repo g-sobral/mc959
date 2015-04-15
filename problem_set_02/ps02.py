@@ -38,6 +38,8 @@ except IOError:
     print 'file not found:', filepath
     exit()
 
+digits = np.array(digits, dtype=np.uint8)
+
 print 'number of digits:', len(digits)
 print 'elements per digit:', len(digits[0])
 
@@ -120,4 +122,4 @@ for c in range(0, 10):
 # FIXME: fix argument types for mahalanobis algorithm
 #
 
-# mdistance = cv2.Mahalanobis(centers[0], grouped_data[0][0], icovariance[0])
+mdistance = cv2.Mahalanobis(centers[0], grouped_data[0][0], icovariance[0])
