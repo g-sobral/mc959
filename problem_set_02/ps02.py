@@ -48,7 +48,7 @@ print 'elements per digit:', len(digits[0])
 #
 
 
-def draw_digit(digit, k, lines=False):
+def draw_digit(digit, k, lines=False, save=False, image_name='digit.png'):
     pixel_size = k/8
     image = np.empty((k, k), dtype=np.uint8)
     for i in range(0, k, pixel_size):
@@ -61,12 +61,14 @@ def draw_digit(digit, k, lines=False):
                     else:
                         image[i+x, j+y] = pixel_value
 
-    cv2.namedWindow('window', cv2.WINDOW_NORMAL)
-    cv2.imshow('window', image)
-    # cv2.imwrite('teste.png', image)
-    cv2.waitKey(0)
+    if save:
+        cv2.imwrite(image_name, image)
+    else:
+        cv2.namedWindow('digit', cv2.WINDOW_NORMAL)
+        cv2.imshow('digit', image)
+        cv2.waitKey(0)
 
-draw_digit(list(digits[0]), 344, True)
+# draw_digit(list(digits[0]), 344, True)
 
 #
 # Q3: Use OpenCV’s KMeans implementation to explore and cluster the dataset
@@ -84,8 +86,9 @@ compactness, labels, centers = cv2.kmeans(data, 10, criteria, 10, flags)
 # Q3a: Use the function of Question 2 to draw the centroid of every cluster.
 #
 
-for center in centers:
-    draw_digit(center.tolist(), 200, True)
+for c in range(0, len(centers)):
+    image_name = 'centroid' + str(c) + '.png'
+    draw_digit(centers[c].tolist(), 200, True, True, image_name)
 
 #
 # Q3b: Analyze the algorithm’s sensitivity according to changes in the
@@ -97,9 +100,24 @@ for center in centers:
 # Q4: Calculate the Covariance Matrix of each of the groups.
 #
 
+grouped_data = []
+icovariance = []
+for c in range(0, 10):
+    grouped_data.append([])
+    for i in range(0, len(digits)):
+        if labels[i] == c:
+            grouped_data[c].append(digits[i])
+    print 'group:', c, len(grouped_data[c])
+    x = np.array(grouped_data[c])
+    icovariance.append(np.linalg.inv(np.cov(x)))
+
 
 #
 # Q5: For each group, calculate the Mahalanobis distance of every element
 #     to the centroid, then draw the centroid followed by the three farthest
 #     elements (showing their Mahalanobis distance).
 #
+# FIXME: fix argument types for mahalanobis algorithm
+#
+
+# mdistance = cv2.Mahalanobis(centers[0], grouped_data[0][0], icovariance[0])
