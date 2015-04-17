@@ -17,13 +17,13 @@ Author: Gabriel Sobral <gasan.sobral@gmail.com>
 import numpy as np
 import cv2
 
-digits = []
 
 #
 # Q1: Using python and OpenCV, learn how to read the data.
 # Improvement: read to np array instead of list
 #
 
+digits = []
 try:
     filepath = 'digits.raw'
     f = open('digits.raw', 'r')
@@ -65,6 +65,7 @@ def draw_digit(digit, k, lines=False, save=False, image_name='digit.png'):
 
     if save:
         cv2.imwrite(image_name, image)
+        print 'saving:', image_name
     else:
         cv2.namedWindow('digit', cv2.WINDOW_NORMAL)
         cv2.imshow('digit', image)
@@ -77,20 +78,19 @@ def draw_digit(digit, k, lines=False, save=False, image_name='digit.png'):
 #     in 10 groups.
 #
 
-data = np.array(digits)
-data = np.float32(data)
+data = np.float32(digits)
 
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 flags = cv2.KMEANS_RANDOM_CENTERS
-compactness, labels, centers = cv2.kmeans(data, 10, criteria, 10, flags)
+compactness, labels, centroids = cv2.kmeans(data, 10, criteria, 10, flags)
 
 #
 # Q3a: Use the function of Question 2 to draw the centroid of every cluster.
 #
 
-for c in range(0, len(centers)):
+for c in range(0, len(centroids)):
     image_name = 'centroid' + str(c) + '.png'
-    draw_digit(centers[c].tolist(), 200, True, True, image_name)
+    draw_digit(centroids[c].tolist(), 200, True, True, image_name)
 
 #
 # Q3b: Analyze the algorithm’s sensitivity according to changes in the
@@ -113,6 +113,9 @@ for c in range(0, 10):
     x = np.array(grouped_data[c])
     icovariance.append(np.linalg.inv(np.cov(x)))
 
+# cv2.calcCovarMatrix(samples, flags[, covar[, mean[, ctype]]]) → covar, mean
+# cv2.invert(src[, dst[, flags]]) → retval, dst
+
 
 #
 # Q5: For each group, calculate the Mahalanobis distance of every element
@@ -122,4 +125,8 @@ for c in range(0, 10):
 # FIXME: fix argument types for mahalanobis algorithm
 #
 
-mdistance = cv2.Mahalanobis(centers[0], grouped_data[0][0], icovariance[0])
+print 'centroid:', type(centroids[0]), centroids[0].shape
+print 'point:', type(grouped_data[0][0]), grouped_data[0][0].shape
+print 'icovarinace:', type(icovariance[0]), icovariance[0].shape
+
+mdistance = cv2.Mahalanobis(centroids[0], np.array(grouped_data[0][0]), np.array(icovariance[0]))
