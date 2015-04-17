@@ -102,6 +102,8 @@ for c in range(0, len(centroids)):
 # Q4: Calculate the Covariance Matrix of each of the groups.
 #
 
+flags = cv2.COVAR_NORMAL | cv2.COVAR_ROWS
+
 grouped_data = []
 icovariance = []
 for c in range(0, 10):
@@ -111,7 +113,11 @@ for c in range(0, 10):
             grouped_data[c].append(digits[i])
     print 'group:', c, len(grouped_data[c])
     x = np.array(grouped_data[c])
-    icovariance.append(np.linalg.inv(np.cov(x)))
+    covar, mean = cv2.calcCovarMatrix(x, flags)
+    # print 'covar:', covar.shape
+    retval, icovar = cv2.invert(covar)
+    # print 'icovar:', icovar.shape
+    icovariance.append(icovar)
 
 # cv2.calcCovarMatrix(samples, flags[, covar[, mean[, ctype]]]) → covar, mean
 # cv2.invert(src[, dst[, flags]]) → retval, dst
@@ -125,8 +131,8 @@ for c in range(0, 10):
 # FIXME: fix argument types for mahalanobis algorithm
 #
 
-print 'centroid:', type(centroids[0]), centroids[0].shape
-print 'point:', type(grouped_data[0][0]), grouped_data[0][0].shape
-print 'icovarinace:', type(icovariance[0]), icovariance[0].shape
+print 'centroid:', centroids[0].type(), centroids[0].size()
+print 'point:', grouped_data[0][0].type(), grouped_data[0][0].size()
+print 'icovarinace:', icovariance[0].type(), icovariance[0].rows, icovariance[0].cols
 
-mdistance = cv2.Mahalanobis(centroids[0], np.array(grouped_data[0][0]), np.array(icovariance[0]))
+mdistance = cv2.Mahalanobis(centroids[0], grouped_data[0][0], icovariance[0])
